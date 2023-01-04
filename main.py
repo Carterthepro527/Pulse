@@ -23,7 +23,7 @@ async def on_ready():
     
     await client.change_presence(activity=activity)
 
-    owner = await client.fetch_user(Your profile id here)
+    owner = await client.fetch_user(Your user ID)
     Activeinfo=discord.Embed(title="Bot update info", description="Bot currently online", colour=discord.Colour.blue())
     Activeinfo.set_footer(text="Powerd by Nttl")
     await owner.send(embed=Activeinfo)
@@ -95,17 +95,21 @@ async def user(ctx):
 
 @client.command()
 @commands.has_permissions(kick_members=True)
-async def kick(ctx, member : discord.Member):
+async def kick(ctx, member : discord.Member, reason="Reason not specified"):
 
-    # Send an embed DM to the kicked user
     kickDM = discord.Embed(title = f'You have been kicked from {ctx.guild.name}', color=discord.Colour.blue())
-    kickDM.add_field(name = 'Kicked by:', value = f'{ctx.author.name}', inline = False)
+    kickDM.add_field(name = 'Kicked by:', value = f'{ctx.author.name}')
+    kickDM.add_field(name = 'Reason:', value = f'{reason}')
     kickDM.set_footer(text="Powerd by Nttl")
-    await member.send(embed = kickDM)
+    await member.send(embed = kickDM, delete_after=6.0)
 
     print("User Kicked")
-    await member.kick(reason="Kicked")
-    await ctx.send(f'Kicked {member.mention}')
+    kick = discord.Embed(title = f'Server kicked from: {ctx.guild.name}', color=discord.Colour.blue())
+    kick.add_field(name = 'User Kicked:', value = f'{member.mention}')
+    kick.add_field(name = 'Reason:', value = f'{reason}')
+    kick.set_footer(text="Powerd by Nttl")
+    await member.send(embed = kick, delete_after=6.0)
+    await member.kick(reason=f'{reason}')
     return
 
 def is_connected(ctx):
@@ -113,19 +117,10 @@ def is_connected(ctx):
     return voice_client and voice_client.is_connected()
 
 @client.command()
-async def songs(ctx):
-
-    mySongs = discord.Embed(title="Songs that the =play command can play", color=discord.Colour.blue())
-    mySongs.add_field(name="Songs:", value="1 Rickroll, 2 Fuck the world, 3 Blueberry Faygo, 4 Toxic boy with uke, 5 Royalty free stream music", inline=False)
-    mySongs.set_footer(text="Powerd by Nttl")
-
-    await ctx.message.channel.send(embed=mySongs)
-
-@client.command()
 async def advertisement(ctx):
 
     Yez = discord.Embed(title="Advertisement")
-    Yez.add_field(name="Please add me to your server:", value="Your discord bot invite here", inline=False)
+    Yez.add_field(name="Please add me to your server:", value="Your discord bot invite", inline=False)
     Yez.set_footer(text="Powerd by Nttl")
 
     await ctx.message.author.send(embed=Yez)
@@ -151,7 +146,10 @@ async def resume(ctx):
 @client.command()
 async def ping(ctx):
     latency = client.latency
-    await ctx.message.channel.send(f'Pong! Latency is {latency} seconds.')
+    Ping = discord.Embed(title = f'Ping info:', color=discord.Colour.blue())
+    Ping.add_field(name = 'Ping:', value = f'{latency}')
+    Ping.set_footer(text="Powerd by Nttl")
+    await ctx.send(embed = Ping, delete_after=6.0)
 
 @client.command()
 async def stop(ctx):
@@ -198,7 +196,7 @@ async def ban(ctx, member : discord.Member, *, reason="Reason not specified"):
     banembed2 = discord.Embed(title = "Ban Info", color=discord.Colour.blue())
     banembed2.add_field(name="Banned", value=f"Member banned: {member.mention}, Reason banned: {reason}, Server banned from: {ctx.guild.name}")
     banembed2.set_footer(text="Powerd by Nttl")
-    await ctx.send(embed=banembed2)
+    await ctx.send(embed=banembed2, delete_after=6.0)
     return
 
 @client.command()
@@ -219,7 +217,7 @@ async def unban(ctx, *, user: discord.User):
     unbanembed = discord.Embed(title = "Unban Info", color=discord.Colour.blue())
     unbanembed.add_field(name="Unbanned", value=f"Member unbanned: {user}, Server unbanned from {ctx.guild.name}")
     unbanembed.set_footer(text="Powerd by Nttl")
-    await ctx.send(embed=unbanembed)
+    await ctx.send(embed=unbanembed, delete_after=6.0)
 
     # Delete the user's information from the ban_table
     cursor.execute('''DELETE FROM ban_table WHERE user_id=?''', (user.id,))
@@ -235,19 +233,23 @@ async def removeban(ctx, *, user: discord.User):
     removeban = discord.Embed(title = "Ban list info", color=discord.Colour.blue())
     removeban.add_field(name="Removed Ban", value=f"Member's ban that was removed: {user}, Server ban was removed from {ctx.guild.name}")
     removeban.set_footer(text="Powerd by Nttl")
-    await ctx.send(embed=removeban)
+    await ctx.send(embed=removeban, delete_after=6.0)
 
 @client.command()
 @commands.has_permissions(administrator=True)
 async def role(ctx, user : discord.Member, *, role :discord.Role):
 
     if role in user.roles:
-        await ctx.send(f"{user.mention} already has the role, {role}")
-        print("User already has that role")
+        Role = discord.Embed(title = "Role info:", color=discord.Colour.blue())
+        Role.add_field(name="Role Given:", value=f"{user} Already has the role {role}")
+        Role.set_footer(text="Powerd by Nttl")
+        await ctx.send(embed=Role, delete_after=6.0)
     else:
         await user.add_roles(role)
-        await ctx.send(f"Added {role} to {user.mention}")
-        print("Role added")
+        RoleGiven = discord.Embed(title = "Role info:", color=discord.Colour.blue())
+        RoleGiven.add_field(name="Role Given:", value=f"{user} Has been given the role {role}")
+        RoleGiven.set_footer(text="Powerd by Nttl")
+        await ctx.send(embed=RoleGiven, delete_after=6.0)
 
 @client.command()
 @commands.has_permissions(administrator=True)
@@ -255,39 +257,58 @@ async def removerole(ctx, user : discord.Member, *, role :discord.Role):
 
     if role in user.roles:
         await user.remove_roles(role)
-        await ctx.send(f"Removed {role} from {user.mention}")
-        print("Role removed")
+        RemoveRoleRemoved = discord.Embed(title = "Role info:", color=discord.Colour.blue())
+        RemoveRoleRemoved.add_field(name="Role Removed:", value=f"{role} has been remove from {user}")
+        RemoveRoleRemoved.set_footer(text="Powerd by Nttl")
+        await ctx.send(embed=RemoveRoleRemoved, delete_after=6.0)
     else:
-        await ctx.send(f"{user.mention} does not have the role {role}")
-        print("Dosen't have role")
+        RemoveRole = discord.Embed(title = "Role info:", color=discord.Colour.blue())
+        RemoveRole.add_field(name="Role Removed:", value=f"{user} Does not have {role}")
+        RemoveRole.set_footer(text="Powerd by Nttl")
+        await ctx.send(embed=RemoveRole, delete_after=6.0)
 
 @client.command(aliases=['clear'])
 @commands.has_permissions(manage_messages=True)
 async def purge(ctx, amount=5):
     await ctx.channel.purge(limit=amount + 1)
-    await ctx.send(f"Cleared messages", delete_after=4.0)
+    Clear = discord.Embed(title = "Purge info:", color=discord.Colour.blue())
+    Clear.add_field(name="Purge:", value=f"Purged messages")
+    Clear.set_footer(text="Powerd by Nttl")
+    await ctx.send(embed=Clear, delete_after=4.0)
 
 @client.command()
 @commands.has_permissions(manage_channels = True)
 async def lockdown(ctx):
     await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=False)
-    await ctx.send( ctx.channel.mention + " is now in lockdown.")
+    Lockdown = discord.Embed(title = "Lockdown Info:", color=discord.Colour.blue())
+    Lockdown.add_field(name="Channel Lockeddown:", value=f"{ctx.channel.mention} ")
+    Lockdown.set_footer(text="Powerd by Nttl")
+    await ctx.send(embed=Lockdown, delete_after=6.0)
 
 @client.command()
 @commands.has_permissions(manage_channels=True)
 async def unlock(ctx):
     await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=True)
-    await ctx.send(ctx.channel.mention + " has been unlocked.")
+    Unlock = discord.Embed(title = "Unlock Info:", color=discord.Colour.blue())
+    Unlock.add_field(name="Channel Unlocked:", value=f"{ctx.channel.mention} ")
+    Unlock.set_footer(text="Powerd by Nttl")
+    await ctx.send(embed=Unlock, delete_after=6.0)
 
 @client.command()
 async def roll(ctx, num_sides: int = 10):
     dice_roll = random.randint(1, num_sides)
-    await ctx.send(f'You rolled a {dice_roll}!')
+    Roll = discord.Embed(title = "Roll Info:", color=discord.Colour.blue())
+    Roll.add_field(name="You rolled:", value=f"{dice_roll}")
+    Roll.set_footer(text="Powerd by Nttl")
+    await ctx.send(embed=Roll, delete_after=5.0)
 
 @client.command()
 async def flip(ctx):
     result = random.choice(['heads', 'tails'])
-    await ctx.send(f'The coin landed on {result}!')
+    Flip = discord.Embed(title = "Roll Info:", color=discord.Colour.blue())
+    Flip.add_field(name="You landed on:", value=f"{result}")
+    Flip.set_footer(text="Powerd by Nttl")
+    await ctx.send(embed=Flip, delete_after=5.0)
 
 @client.command()
 @commands.has_permissions(manage_roles=True)
@@ -337,7 +358,6 @@ async def unmute(ctx, member: discord.Member):
 
 @client.command()
 async def randomname(ctx):
-    await ctx.send(f'If you get the name "JIMMY BOB JOE" well then you lucky boi')
     # Create a list of first names
     first_names = ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank', 'Greta', 'Henry', 'JIMMY BOB']
     # Create a list of last names
@@ -345,6 +365,10 @@ async def randomname(ctx):
     # Generate a random name
     name = random.choice(first_names) + ' ' + random.choice(last_names)
     # Send the name to the channel
-    await ctx.send(f'Your random name is: {name}')
+    Flip = discord.Embed(title = "Name Info:", color=discord.Colour.blue())
+    Flip.add_field(name="Lucky", value="If you get the name ,JIMMY BOB JOE, well then you lucky boi")
+    Flip.add_field(name="Your random name is:", value=f"{name}")
+    Flip.set_footer(text="Powerd by Nttl")
+    await ctx.send(embed=Flip, delete_after=10.0)
 
-client.run('Discord bot token here')
+client.run('Your discord bot token')
